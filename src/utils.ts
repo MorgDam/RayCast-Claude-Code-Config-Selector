@@ -24,8 +24,8 @@ export function getConfigOptions(): ClaudeCodeConfig[] {
         return configs;
       }
     }
-  } catch (error) {
-    console.error("Error parsing configurations JSON:", error);
+  } catch {
+    console.error("Error parsing configurations JSON");
   }
 
   // Return default configurations if JSON parsing fails or no configurations provided
@@ -61,7 +61,7 @@ export function getConfigOptions(): ClaudeCodeConfig[] {
       ANTHROPIC_AUTH_TOKEN: "your_local_token_here",
       ANTHROPIC_MODEL: "claude-3-haiku-20240307",
       ANTHROPIC_SMALL_FAST_MODEL: "claude-3-haiku-20240307",
-    }
+    },
   ];
 }
 
@@ -75,7 +75,7 @@ export async function getCurrentConfig(): Promise<Partial<ClaudeCodeConfig> | nu
 
       if (stdout.trim()) {
         const currentConfig: Partial<ClaudeCodeConfig> = {};
-        const lines = stdout.trim().split('\n');
+        const lines = stdout.trim().split("\n");
 
         lines.forEach((line) => {
           const match = line.match(/^export (ANTHROPIC_[A-Z_]+)="([^"]+)"/);
@@ -89,7 +89,7 @@ export async function getCurrentConfig(): Promise<Partial<ClaudeCodeConfig> | nu
           return currentConfig;
         }
       }
-    } catch (fileError) {
+    } catch {
       // File doesn't exist or can't be read, silently continue
     }
 
@@ -99,10 +99,10 @@ export async function getCurrentConfig(): Promise<Partial<ClaudeCodeConfig> | nu
 
       if (stdout.trim()) {
         const currentConfig: Partial<ClaudeCodeConfig> = {};
-        const lines = stdout.trim().split('\n');
+        const lines = stdout.trim().split("\n");
 
         lines.forEach((line) => {
-          const [key, value] = line.split('=');
+          const [key, value] = line.split("=");
           if (key && value) {
             currentConfig[key as keyof ClaudeCodeConfig] = value;
           }
@@ -112,20 +112,18 @@ export async function getCurrentConfig(): Promise<Partial<ClaudeCodeConfig> | nu
           return currentConfig;
         }
       }
-    } catch (envError) {
+    } catch {
       // Environment variables not set, silently continue
     }
 
     return null;
-  } catch (error) {
+  } catch {
     // Silently handle all errors, return null if can't determine config
     return null;
   }
 }
 
-export async function updateEnvironmentVariables(
-  config: ClaudeCodeConfig,
-): Promise<void> {
+export async function updateEnvironmentVariables(config: ClaudeCodeConfig): Promise<void> {
   try {
     // Create a dedicated environment file instead of modifying .zshrc
     const envContent = `# Claude Code Environment Configuration
@@ -146,18 +144,14 @@ echo "Claude Code environment configured for ${config.alias}"
 `;
 
     fs.writeFileSync(`${process.env.HOME}/.claude-code-apply`, applyScript);
-    fs.chmodSync(`${process.env.HOME}/.claude-code-apply`, '755');
-
+    fs.chmodSync(`${process.env.HOME}/.claude-code-apply`, "755");
   } catch (error) {
     console.error("Error updating environment variables:", error);
     throw error;
   }
 }
 
-export function isConfigActive(
-  config: ClaudeCodeConfig,
-  currentConfig: Partial<ClaudeCodeConfig> | null,
-): boolean {
+export function isConfigActive(config: ClaudeCodeConfig, currentConfig: Partial<ClaudeCodeConfig> | null): boolean {
   if (!currentConfig) return false;
   return (
     currentConfig.ANTHROPIC_BASE_URL === config.ANTHROPIC_BASE_URL &&

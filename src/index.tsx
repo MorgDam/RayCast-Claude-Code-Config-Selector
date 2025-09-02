@@ -1,11 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  List,
-  Icon,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { Action, ActionPanel, List, Icon, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 import {
   getConfigOptions,
@@ -18,8 +11,7 @@ import {
 
 export default function Command() {
   const [configOptions, setConfigOptions] = useState<ClaudeCodeConfig[]>([]);
-  const [currentConfig, setCurrentConfig] =
-    useState<Partial<ClaudeCodeConfig> | null>(null);
+  const [currentConfig, setCurrentConfig] = useState<Partial<ClaudeCodeConfig> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +22,7 @@ export default function Command() {
 
         const config = await getCurrentConfig();
         setCurrentConfig(config);
-      } catch (error) {
+      } catch {
         await showToast({
           style: Toast.Style.Failure,
           title: "Failed to load configurations",
@@ -58,10 +50,9 @@ export default function Command() {
       toast.style = Toast.Style.Success;
       toast.title = "Configuration updated!";
       toast.message = `${config.emoji} ${config.alias} is now active`;
-    } catch (error) {
+    } catch {
       toast.style = Toast.Style.Failure;
       toast.title = "Failed to update configuration";
-      toast.message = String(error);
     }
   };
 
@@ -77,7 +68,7 @@ export default function Command() {
       toast.style = Toast.Style.Success;
       toast.title = "Environment applied!";
       toast.message = "Current shell session now uses the selected configuration";
-    } catch (error) {
+    } catch {
       toast.style = Toast.Style.Failure;
       toast.title = "Failed to apply environment";
       toast.message = "Run 'source ~/.claude-code-env' manually";
@@ -105,19 +96,13 @@ export default function Command() {
               {
                 text: active ? "Active" : "",
                 icon: active ? Icon.Checkmark : undefined,
-                tooltip: active
-                  ? "Currently active configuration"
-                  : "Click to activate",
+                tooltip: active ? "Currently active configuration" : "Click to activate",
               },
             ]}
             actions={
               <ActionPanel>
                 <ActionPanel.Section>
-                  <Action
-                    title="Select Configuration"
-                    icon={Icon.Gear}
-                    onAction={() => handleSelectConfig(config)}
-                  />
+                  <Action title="Select Configuration" icon={Icon.Gear} onAction={() => handleSelectConfig(config)} />
                   {active && (
                     <Action
                       title="Reload Shell"
